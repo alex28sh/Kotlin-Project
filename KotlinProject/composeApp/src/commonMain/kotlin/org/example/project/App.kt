@@ -1,10 +1,8 @@
 package org.example.project
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -20,18 +18,49 @@ import kotlinproject.composeapp.generated.resources.compose_multiplatform
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
+        val books = remember { mutableStateListOf<String>() }
+        var currentOffset by remember { mutableStateOf(0) }
+        val isLoading = remember { mutableStateOf(false) }
+        val listState = rememberLazyListState()
+
+
+        val isEndReached by remember {
+            derivedStateOf {
+                val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                val totalItems = listState.layoutInfo.totalItemsCount
+                lastVisibleItemIndex != null && totalItems != null && lastVisibleItemIndex >= totalItems - 1
             }
         }
+
+        LaunchedEffect(isEndReached) {
+            if (isEndReached && !isLoading.value) {
+                isLoading.value = true
+                val newBooks = ServerInteraction().fetchBooksFromServer(limit = 20, offset = currentOffset)
+                books.addAll(newBooks)
+                currentOffset += 20
+                isLoading.value = false
+            }
+        }
+
+        LazyColumn (state = listState) {
+
+            items(books) { book ->
+                Text(book) // Your UI for each book item
+            }
+
+        }
+//        var showContent by remember { mutableStateOf(false) }
+//        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+//            Button(onClick = { showContent = !showContent }) {
+//                Text("Click me!")
+//            }
+//            AnimatedVisibility(showContent) {
+//                val greeting = remember<String> { Greeting().greet() }
+//                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+//                    Image(painterResource(Res.drawable.compose_multiplatform), null)
+//                    Text("Compose: $greeting")
+//                }
+//            }
+//        }
     }
 }
