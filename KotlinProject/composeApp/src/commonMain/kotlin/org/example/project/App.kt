@@ -18,12 +18,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Preview
 fun App() {
     MaterialTheme {
-        val books = remember { mutableStateListOf<String>("a", "b", "c") }
+        val books = remember { mutableStateListOf<String>() }
         var currentOffset by remember { mutableStateOf(0) }
-        val isLoading = remember { mutableStateOf(false) }
         val listState = rememberLazyListState()
-
-        val s = Greeting().greet()
 
         val isEndReached by remember {
             derivedStateOf {

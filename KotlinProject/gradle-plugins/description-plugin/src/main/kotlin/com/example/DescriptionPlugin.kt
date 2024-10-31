@@ -8,29 +8,15 @@ class DescriptionPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.task("describe") {
             doLast {
-                getLatestCommitInfo("alex28sh", "Terms-Reduction", "master")
-                println("Number of classfiles: ${getClassFiles(project)}")
-                println("Number of source files: ${countSourceFiles(listOf(File("composeApp/src"), File("iosApp"), File("server/src"), File("shared/src")), listOf("kt", "tks"))}\n")
+                getLatestCommitInfo("alex28sh", "Kotlin-Project", "main")
+                println("Number of classfiles: ${countFiles(listOf(File("composeApp/build"), File("server/build"), File("shared/src")), listOf("class"))}")
+                println("Number of source files: ${countFiles(listOf(File("composeApp/src"), File("iosApp"), File("server/src"), File("shared/src")), listOf("kt", "tks"))}\n")
             }
         }
     }
 
-    private fun getClassFiles(project: Project): Int {
-        val classesDir = project.buildDir
-        return classesDir.walk().filter { it.isFile && it.extension == "class" }.count()
-    }
 
-    private fun countSourceFiles(dirs: List<File>, extensions: List<String>): Int {
-        var totalSourceFiles = 0
-
-        dirs.map {it.listFiles().asIterable()}.flatMap {it}.forEach { file ->
-            if (file.isDirectory) {
-                totalSourceFiles += countSourceFiles(listOf(file), extensions)
-            } else if (file.isFile && extensions.any { file.name.endsWith(".$it") }) {
-                totalSourceFiles++
-            }
-        }
-
-        return totalSourceFiles
+    private fun countFiles(dirs: List<File>, extensions: List<String>): Int {
+        return dirs.sumOf { dir -> dir.walk().filter { file -> file.isFile && extensions.any { file.name.endsWith(".$it") } }.count() }
     }
 }
