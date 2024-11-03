@@ -10,7 +10,7 @@ import kotlinx.serialization.json.*
 
 class ServerInteraction {
 
-    suspend fun fetchBooksFromServer(limit: Int, offset: Int): List<String> {
+    suspend fun fetchItemsFromServer(limit: Int, offset: Int, needTitles: Boolean): List<String> {
         val client = HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
@@ -23,15 +23,13 @@ class ServerInteraction {
         val response: HttpResponse = client.get("http://0.0.0.0:8080") {
             parameter("limit", limit)
             parameter("offset", offset)
+            parameter("needTitles", needTitles)
         }
 
         val json = Json {
             ignoreUnknownKeys = true
         }
 
-        val booksResponse =
-            json.decodeFromString<Pair<List<String>, List<String>>>(response.bodyAsText())
-
-        return booksResponse.first
+        return json.decodeFromString(response.bodyAsText())
     }
 }

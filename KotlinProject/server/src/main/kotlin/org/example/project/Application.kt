@@ -42,10 +42,13 @@ fun main() {
             get("/") {
                 val limit = call.parameters["limit"]?.toIntOrNull() ?: 10
                 val offset = call.parameters["offset"]?.toIntOrNull() ?: 0
+                val needTitles = call.parameters["needTitles"]?.toBoolean() ?: true
                 val books = fetchBooks(limit, offset)
-                val titles = books.map { it.title }
-                val authors = books.flatMap { it.authors }.map { it.name }
-                call.respond(Json.encodeToString(Pair(titles, authors)))
+                if (needTitles) {
+                    call.respond(Json.encodeToString(books.map { it.title }))
+                } else {
+                    call.respond(Json.encodeToString(books.flatMap { it.authors }.map { it.name }))
+                }
             }
         }
     }.start(wait = true)

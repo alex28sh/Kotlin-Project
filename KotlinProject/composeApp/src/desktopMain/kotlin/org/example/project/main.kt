@@ -6,8 +6,14 @@ import androidx.compose.ui.window.application
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "KotlinProject",
+        title = "Book Titles",
     ) {
-        App()
+        App(true)
+    }
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "Book Authors",
+    ) {
+        App(false)
     }
 }

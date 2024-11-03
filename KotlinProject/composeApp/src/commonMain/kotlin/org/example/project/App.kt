@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 @Preview
-fun App() {
+fun App(needTitles : Boolean) {
     MaterialTheme {
-        val books = remember { mutableStateListOf<String>() }
+        val items = remember { mutableStateListOf<String>() }
         var currentOffset by remember { mutableStateOf(0) }
         val listState = rememberLazyListState()
 
@@ -34,16 +34,16 @@ fun App() {
             snapshotFlow { isEndReached }
                 .distinctUntilChanged()
                 .collect {
-                    val newBooks = ServerInteraction().fetchBooksFromServer(limit = 20, offset = currentOffset)
-                    books.addAll(newBooks)
+                    val newItems = ServerInteraction().fetchItemsFromServer(limit = 20, offset = currentOffset, needTitles = needTitles)
+                    items.addAll(newItems)
                     currentOffset += 20
                 }
         }
 
         LazyColumn (state = listState, modifier = Modifier.fillMaxWidth()) {
 
-            items(books) { book ->
-                Text(book, fontSize = 40.sp) // Your UI for each book item
+            items(items) { item ->
+                Text(item, fontSize = 40.sp) // Your UI for each book item
             }
 
         }
